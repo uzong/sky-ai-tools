@@ -1,0 +1,112 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+	const articles = await getCollection('articles');
+	return articles.map(article => ({
+		params: { slug: article.slug },
+		props: { article },
+	}));
+}
+
+const { article } = Astro.props;
+const { Content } = await article.render();
+const { data } = article;
+---
+
+<Layout title={data.title}>
+	<div class="container">
+		<article class="article-detail">
+			<header class="article-header">
+				<div class="breadcrumb">
+					<a href="/">首页</a> / <a href="/articles">资讯</a> / 正文
+				</div>
+				<h1>{data.title}</h1>
+				<div class="article-meta">
+					<span>发布于 {data.date.toLocaleDateString('zh-CN')}</span>
+					<div class="tags">
+						{data.tags.map(tag => <span class="tag">#{tag}</span>)}
+					</div>
+				</div>
+			</header>
+
+			<div class="article-body card">
+				<div class="summary">
+					<strong>摘要：</strong>{data.summary}
+				</div>
+				<div class="prose">
+					<Content />
+				</div>
+			</div>
+		</article>
+	</div>
+</Layout>
+
+<style>
+	.article-detail {
+		max-width: 900px;
+		margin: 0 auto;
+		padding-top: 2rem;
+	}
+
+	.article-header {
+		margin-bottom: 3rem;
+		text-align: center;
+	}
+
+	.breadcrumb {
+		font-size: 0.85rem;
+		color: var(--text-muted);
+		margin-bottom: 1rem;
+	}
+
+	.article-header h1 {
+		font-size: 2.5rem;
+		margin-bottom: 1.5rem;
+		line-height: 1.3;
+	}
+
+	.article-meta {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1rem;
+		color: var(--text-muted);
+	}
+
+	.tags {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.article-body {
+		padding: 3rem;
+	}
+
+	.summary {
+		background: #f8fafc;
+		padding: 1.5rem;
+		border-radius: 8px;
+		margin-bottom: 2.5rem;
+		border-left: 4px solid var(--primary);
+		font-style: italic;
+		color: #475569;
+	}
+
+	.prose {
+		line-height: 1.8;
+		font-size: 1.1rem;
+		color: #334155;
+	}
+
+	.prose :global(h2) { margin: 2rem 0 1rem; font-size: 1.75rem; }
+	.prose :global(p) { margin-bottom: 1.5rem; }
+	.prose :global(ul) { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+	.prose :global(li) { margin-bottom: 0.5rem; }
+
+	@media (max-width: 640px) {
+		.article-body { padding: 1.5rem; }
+		.article-header h1 { font-size: 1.75rem; }
+	}
+</style>

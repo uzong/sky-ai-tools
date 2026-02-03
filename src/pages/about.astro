@@ -1,0 +1,188 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="关于 Sky-AI-tools">
+    <div class="about-container">
+        <section class="about-hero">
+            <h1 class="text-gradient">关于 Sky-AI-tools</h1>
+            <p class="hero-subtitle">探索、发现、并驾驭人工智能的力量</p>
+        </section>
+
+        <section class="about-content">
+            <div class="about-grid">
+                <div class="about-card card">
+                    <div class="icon-box">🎯</div>
+                    <h3>我们的使命</h3>
+                    <p>在 AI 爆发的时代，信息的获取成本反而变得更高。我们致力于通过高质量的内容筛选和深度工具解析，帮助中文世界的用户快速找到最适合自己的 AI 生产力工具。</p>
+                </div>
+
+                <div class="about-card card">
+                    <div class="icon-box">⚖️</div>
+                    <h3>收录标准</h3>
+                    <ul class="standard-list">
+                        <li><strong>真实可用</strong>：所有工具均经过初步验证，确保非虚假宣传。</li>
+                        <li><strong>活跃更新</strong>：优先收录有持续维护记录或活跃社区的产品。</li>
+                        <li><strong>用户口碑</strong>：参考 GitHub Star、Product Hunt 排名及社交媒体评价。</li>
+                    </ul>
+                </div>
+
+                <div class="about-card card">
+                    <div class="icon-box">🤝</div>
+                    <h3>加入我们</h3>
+                    <p>如果你有优秀的工具推荐，或者想参与我们的文章撰写，甚至是想成为我们的合作伙伴，欢迎通过邮件与我们联系。</p>
+                    <div class="contact-box">
+                        <span class="email">contact@sky-ai-tools.com</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="philosophy-section card">
+                <h2>我们的价值观</h2>
+                <div class="philosophy-grid">
+                    <div class="philo-item">
+                        <h4>精选而非海量</h4>
+                        <p>我们不追求数量上的庞大，而是追求每一个收录工具的质量与实用价值。</p>
+                    </div>
+                    <div class="philo-item">
+                        <h4>中立且客观</h4>
+                        <p>所有的评测和推荐均基于真实的测试体验，力求为您提供最客观的参考。</p>
+                    </div>
+                    <div class="philo-item">
+                        <h4>社区驱动</h4>
+                        <p>我们相信集体的智慧，欢迎每一位用户的反馈与分享。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</Layout>
+
+<style>
+    .about-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+    }
+
+    .about-hero {
+        text-align: center;
+        margin-bottom: 5rem;
+    }
+
+    .about-hero h1 {
+        font-size: 4rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.5rem;
+        color: var(--text-muted);
+    }
+
+    .about-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .about-card {
+        padding: 3rem 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .icon-box {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .about-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: white;
+    }
+
+    .about-card p {
+        color: var(--text-muted);
+        line-height: 1.8;
+    }
+
+    .standard-list {
+        list-style: none;
+        text-align: left;
+        margin-top: 1rem;
+    }
+
+    .standard-list li {
+        margin-bottom: 1rem;
+        color: var(--text-muted);
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .standard-list li strong {
+        color: var(--primary);
+    }
+
+    .contact-box {
+        margin-top: 2rem;
+        padding: 0.75rem 1.5rem;
+        background: rgba(99, 102, 241, 0.1);
+        border-radius: 12px;
+        border: 1px dashed var(--primary);
+    }
+
+    .email {
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+    .philosophy-section {
+        padding: 4rem;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.8));
+    }
+
+    .philosophy-section h2 {
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+        background: linear-gradient(to right, #fff, var(--text-muted));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .philosophy-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 3rem;
+    }
+
+    .philo-item h4 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        color: white;
+    }
+
+    .philo-item p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+        .about-hero h1 { font-size: 2.5rem; }
+        .philosophy-section { padding: 2rem; }
+    }
+</style>

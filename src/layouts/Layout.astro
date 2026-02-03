@@ -1,0 +1,44 @@
+---
+import '../styles/modern.css';
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description = "Sky-AI-tools - 发现全球最前沿的 AI 工具" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content={description} />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+		<title>{title} | Sky-AI-tools</title>
+	</head>
+	<body>
+		<header class="site-header">
+			<nav class="container" style="display: flex; justify-content: space-between; align-items: center;">
+				<a href="/" class="logo">Sky-AI-tools</a>
+				<div class="nav-links" style="display: flex; gap: 2rem;">
+					<a href="/tools/" style="color: var(--text-muted); font-weight: 600;">探索工具</a>
+					<a href="/articles/" style="color: var(--text-muted); font-weight: 600;">深度资讯</a>
+					<a href="/about/" style="color: var(--text-muted); font-weight: 600;">关于我们</a>
+				</div>
+			</nav>
+		</header>
+		<main>
+			<slot />
+		</main>
+		<footer style="padding: 4rem 0; border-top: 1px solid var(--border); margin-top: 4rem; text-align: center; color: var(--text-muted);">
+			<div class="container">
+				<p>© 2026 Sky-AI-tools · 引领人工智能新纪元</p>
+			</div>
+		</footer>
+	</body>
+</html>

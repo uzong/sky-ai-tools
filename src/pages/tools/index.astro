@@ -1,0 +1,166 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import ToolCard from '../../components/ToolCard.astro';
+
+const allTools = await getCollection('tools');
+
+// Get all unique categories for the filter
+const allCategories = [...new Set(allTools.flatMap(t => t.data.category))];
+---
+
+<Layout title="所有 AI 工具">
+	<div class="container">
+		<header class="page-header">
+			<h1>探索所有 AI 工具</h1>
+			<p>按分类、价格或功能筛选你需要的 AI 助手</p>
+		</header>
+
+		<div class="search-filter-bar card">
+			<div class="search-box">
+				<input type="text" id="tool-search" placeholder="输入名称、描述或标签搜索..." />
+			</div>
+			<div class="filters">
+				<select id="category-filter">
+					<option value="">所有分类</option>
+					{allCategories.map(cat => <option value={cat}>{cat}</option>)}
+				</select>
+				<select id="pricing-filter">
+					<option value="">所有价格</option>
+					<option value="Free">免费</option>
+					<option value="Paid">付费</option>
+				</select>
+				<select id="lang-filter">
+					<option value="">所有语言</option>
+					<option value="zh-CN">中文支持</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="tools-grid mt-4" id="tools-container">
+			{allTools.map(tool => (
+				<div class="tool-item" 
+					 data-name={tool.data.name.toLowerCase()}
+					 data-desc={tool.data.description.toLowerCase()}
+					 data-tags={tool.data.tags.join(',').toLowerCase()}
+					 data-category={tool.data.category.join(',')}
+					 data-pricing={tool.data.pricing.join(',')}
+					 data-lang={tool.data.language_support.join(',')}
+				>
+					<ToolCard tool={tool} />
+				</div>
+			))}
+		</div>
+		
+		<div id="no-results" class="hidden">
+			<p>未找到匹配的工具，请尝试其他关键词。</p>
+		</div>
+	</div>
+</Layout>
+
+<script>
+	const searchInput = document.getElementById('tool-search') as HTMLInputElement;
+	const categoryFilter = document.getElementById('category-filter') as HTMLSelectElement;
+	const pricingFilter = document.getElementById('pricing-filter') as HTMLSelectElement;
+	const langFilter = document.getElementById('lang-filter') as HTMLSelectElement;
+	const toolItems = document.querySelectorAll('.tool-item');
+	const noResults = document.getElementById('no-results');
+
+	function filterTools() {
+		const searchTerm = searchInput.value.toLowerCase();
+		const category = categoryFilter.value;
+		const pricing = pricingFilter.value;
+		const lang = langFilter.value;
+
+		let visibleCount = 0;
+
+		toolItems.forEach(item => {
+			const element = item as HTMLElement;
+			const name = element.dataset.name || '';
+			const desc = element.dataset.desc || '';
+			const tags = element.dataset.tags || '';
+			const itemCategory = element.dataset.category || '';
+			const itemPricing = element.dataset.pricing || '';
+			const itemLang = element.dataset.lang || '';
+
+			const matchesSearch = name.includes(searchTerm) || desc.includes(searchTerm) || tags.includes(searchTerm);
+			const matchesCategory = category === '' || itemCategory.includes(category);
+			const matchesPricing = pricing === '' || (pricing === 'Free' ? itemPricing.toLowerCase().includes('free') || itemPricing.includes('免费') : !itemPricing.toLowerCase().includes('free') && !itemPricing.includes('免费'));
+			const matchesLang = lang === '' || itemLang.includes(lang);
+
+			if (matchesSearch && matchesCategory && matchesPricing && matchesLang) {
+				element.classList.remove('hidden');
+				visibleCount++;
+			} else {
+				element.classList.add('hidden');
+			}
+		});
+
+		if (visibleCount === 0) {
+			noResults?.classList.remove('hidden');
+		} else {
+			noResults?.classList.add('hidden');
+		}
+	}
+
+	searchInput?.addEventListener('input', filterTools);
+	categoryFilter?.addEventListener('change', filterTools);
+	pricingFilter?.addEventListener('change', filterTools);
+	langFilter?.addEventListener('change', filterTools);
+</script>
+
+<style>
+	.page-header { text-align: center; padding: 4rem 0; }
+	.page-header h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+	
+	.search-filter-bar {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+		padding: 2rem;
+		margin-bottom: 2rem;
+	}
+
+	.search-box input {
+		width: 100%;
+		padding: 0.75rem 1rem;
+		border: 1px solid var(--border);
+		border-radius: 8px;
+		font-size: 1rem;
+	}
+
+	.filters {
+		display: flex;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.filters select {
+		padding: 0.5rem 1rem;
+		border: 1px solid var(--border);
+		border-radius: 8px;
+		background: white;
+		flex-grow: 1;
+	}
+
+	.tools-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+		gap: 2rem;
+	}
+
+	.hidden { display: none; }
+
+	#no-results {
+		text-align: center;
+		padding: 4rem;
+		color: var(--text-muted);
+	}
+
+	@media (min-width: 768px) {
+		.search-filter-bar { flex-direction: row; align-items: center; }
+		.search-box { flex-grow: 1; }
+		.filters { flex-shrink: 0; }
+		.filters select { width: 150px; }
+	}
+</style>

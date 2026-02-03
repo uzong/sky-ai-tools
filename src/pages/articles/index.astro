@@ -1,0 +1,96 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const articles = await getCollection('articles');
+const sortedArticles = articles.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<Layout title="AI 资讯与深度文章">
+	<div class="container">
+		<header class="page-header">
+			<h1>AI 资讯与深度文章</h1>
+			<p>追踪 AI 行业动态，学习高质量 AI 使用技巧</p>
+		</header>
+
+		<div class="articles-list">
+			{sortedArticles.map(article => (
+				<article class="article-item card">
+					<div class="article-content">
+						<div class="article-meta">
+							<span class={`type-badge ${article.data.type}`}>
+								{article.data.type === 'weekly-news' ? '每周资讯' : '深度文章'}
+							</span>
+							<time>{article.data.date.toLocaleDateString('zh-CN')}</time>
+						</div>
+						<h2><a href={`/articles/${article.slug}`}>{article.data.title}</a></h2>
+						<p>{article.data.summary}</p>
+						<div class="article-tags">
+							{article.data.tags.map(tag => <span>#{tag}</span>)}
+						</div>
+					</div>
+				</article>
+			))}
+		</div>
+	</div>
+</Layout>
+
+<style>
+	.page-header {
+		text-align: center;
+		padding: 4rem 0;
+	}
+
+	.page-header h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+	.page-header p { color: var(--text-muted); font-size: 1.1rem; }
+
+	.articles-list {
+		max-width: 800px;
+		margin: 0 auto;
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.article-item {
+		padding: 2rem;
+	}
+
+	.article-meta {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-bottom: 1rem;
+		font-size: 0.85rem;
+		color: var(--text-muted);
+	}
+
+	.type-badge {
+		padding: 2px 8px;
+		border-radius: 4px;
+		font-weight: 600;
+	}
+
+	.type-badge.weekly-news { background: #fee2e2; color: #991b1b; }
+	.type-badge.quality-article { background: #e0f2fe; color: #075985; }
+
+	.article-item h2 {
+		margin-bottom: 1rem;
+		font-size: 1.5rem;
+	}
+
+	.article-item h2 a:hover { color: var(--primary); }
+
+	.article-item p {
+		color: var(--text-muted);
+		line-height: 1.6;
+		margin-bottom: 1.5rem;
+	}
+
+	.article-tags {
+		display: flex;
+		gap: 0.75rem;
+		font-size: 0.85rem;
+		color: var(--primary);
+	}
+</style>

@@ -1,0 +1,51 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import ToolCard from '../../components/ToolCard.astro';
+
+export async function getStaticPaths() {
+	const categories = [
+		{ name: '智能大模型', slug: 'llm' },
+		{ name: '编程助手', slug: 'coding' },
+		{ name: '创意绘图', slug: 'image' },
+		{ name: '视频制作', slug: 'video' },
+		{ name: '智能体', slug: 'agents' },
+		{ name: '深度搜索', slug: 'search' },
+        { name: '背景移除', slug: 'bg-removal' },
+        { name: '演示文稿', slug: 'ppt' }
+	];
+
+	return categories.map(cat => ({
+		params: { slug: cat.slug },
+		props: { category: cat },
+	}));
+}
+
+const { category } = Astro.props;
+const allTools = await getCollection('tools');
+
+// 匹配逻辑：检查工具的分类数组中是否包含该分类名称的关键部分
+const filteredTools = allTools.filter(tool => 
+	tool.data.category.some(cat => 
+        cat.includes(category.name.replace('智能', '').replace('助手', '')) || 
+        category.name.includes(cat)
+    )
+);
+---
+
+<Layout title={category.name}>
+	<div class="container" style="padding-top: 4rem;">
+		<header class="page-header" style="margin-bottom: 4rem; text-align: center;">
+			<div class="breadcrumb" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+				<a href="/" style="color: inherit; text-decoration: none;">首页</a> / 分类 / {category.name}
+			</div>
+			<h1 style="font-size: 3rem; font-weight: 900;">{category.name}</h1>
+			<p style="color: var(--text-muted); font-size: 1.1rem; margin-top: 1rem;">发现最优秀的 {category.name} 相关 AI 工具</p>
+		</header>
+
+		<div class="tools-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; min-height: 400px;">
+			{filteredTools.map(tool => <ToolCard tool={tool} />)}
+			{filteredTools.length === 0 && <p style="grid-column: 1/-1; text-align: center; padding: 5rem; color: var(--text-muted);">该分类下暂无工具，正在快马加鞭收录中...</p>}
+		</div>
+	</div>
+</Layout>

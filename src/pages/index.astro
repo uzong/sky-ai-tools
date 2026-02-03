@@ -1,0 +1,548 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import ToolCard from '../components/ToolCard.astro';
+
+const allTools = await getCollection('tools');
+const sortedTools = [...allTools].sort((a, b) => {
+    if (a.data.is_hot && !b.data.is_hot) return -1;
+    if (!a.data.is_hot && b.data.is_hot) return 1;
+    return 0;
+});
+
+const sectionOrder = [
+    { title: '🧠 智能大语言模型', cats: ['AI 大模型', '大语言模型', '智能助手'] },
+    { title: '💻 AI 编程神器', cats: ['AI 编程工具', 'IDE', '编程助手'] },
+    { title: '🎨 创意绘图与设计', cats: ['AI 文生图', 'AI 绘图', 'AI 设计'] },
+    { title: '🎥 视频制作与动效', cats: ['AI 视频'] },
+    { title: '🤖 通用智能体 (Agents)', cats: ['AI 智能体', '通用代理'] },
+    { title: '🔍 深度搜索与调研', cats: ['AI 搜索', 'AI 搜索引擎'] },
+    { title: '🖼️ 图像处理与背景移除', cats: ['AI 背景移除', '图像工具'] },
+    { title: '📊 办公与演示文稿', cats: ['AI 幻灯片', '演示办公'] }
+];
+
+const categoryList = [
+    { name: '智能大模型', icon: '🧠', slug: 'llm' },
+    { name: '编程助手', icon: '💻', slug: 'coding' },
+    { name: '创意绘图', icon: '🎨', slug: 'image' },
+    { name: '视频制作', icon: '🎥', slug: 'video' },
+    { name: '智能体', icon: '🤖', slug: 'agents' },
+    { name: '深度搜索', icon: '🔍', slug: 'search' },
+    { name: '背景移除', icon: '🖼️', slug: 'bg-removal' },
+    { name: '演示文稿', icon: '📊', slug: 'ppt' }
+];
+
+const articles = await getCollection('articles');
+const latestArticles = articles.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 5);
+const hotTools = allTools.filter(t => t.data.is_hot).slice(0, 6);
+---
+
+<Layout title="Sky-AI 导航 - 您的 AI 超级门户">
+    <div class="main-layout">
+        <!-- 左侧侧边栏导航 -->
+        <aside class="sidebar-nav">
+            <div class="sidebar-sticky">
+                <div class="sidebar-section">
+                    <h4 class="sidebar-title">快速导航</h4>
+                    <ul class="sidebar-list">
+                        <li><a href="/" class="active"><span>🏠</span> 首页精选</a></li>
+                        <li><a href="/tools/"><span>🔍</span> 探索所有工具</a></li>
+                        <li><a href="/articles/"><span>📰</span> AI 深度资讯</a></li>
+                        <li><a href="/about/"><span>ℹ️</span> 关于我们</a></li>
+                    </ul>
+                </div>
+
+                <div class="sidebar-section">
+                    <h4 class="sidebar-title">工具分类</h4>
+                    <ul class="sidebar-list">
+                        {categoryList.map(cat => (
+                            <li>
+                                <a href={`/category/${cat.slug}/`}>
+                                    <span>{cat.icon}</span> {cat.name}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区域 -->
+        <main class="content-area">
+            <div class="main-grid">
+                <div class="primary-content">
+                    <section class="top-hero">
+                        <div class="search-hero">
+                            <h1 class="text-gradient">发现 AI 的无限可能</h1>
+                            <p>聚合全球最强 AI 生产力工具，赋能每一个创造者</p>
+                            <div class="hero-search-bar">
+                                <input type="text" placeholder="搜索工具名称、功能或场景..." />
+                                <button>搜索</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="sections-wrapper">
+                        {sectionOrder.map(section => {
+                            const tools = sortedTools.filter(t => 
+                                t.data.category.some(c => section.cats.includes(c))
+                            );
+                            if (tools.length === 0) return null;
+                            const limit = section.title.includes('编程') ? 20 : 10;
+                            const displayTools = tools.length > limit ? tools.slice(0, limit) : tools;
+                            const hasMore = tools.length > limit;
+                            return (
+                                <section class="tool-section">
+                                    <div class="section-header">
+                                        <h2>{section.title}</h2>
+                                        {hasMore && <a href="/tools/" class="view-more-link">查看更多 <span>→</span></a>}
+                                    </div>
+                                    <div class="tool-grid">
+                                        {displayTools.map(tool => <ToolCard tool={tool} />)}
+                                    </div>
+                                </section>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                <!-- 右侧辅助侧边栏 -->
+                <aside class="right-sidebar">
+                    <div class="sidebar-widget ranking-widget card">
+                        <h3 class="widget-title"><span>🔥</span> 热门工具排行</h3>
+                        <div class="mini-tool-list">
+                            {hotTools.map((tool, index) => (
+                                <a href={`/tools/${tool.slug}/`} class="mini-tool-item">
+                                    <div class={`rank-badge rank-${index + 1}`}>
+                                        {index + 1}
+                                    </div>
+                                    <img src={tool.data.logo} alt={tool.data.name} />
+                                    <div class="mini-info">
+                                        <span class="name">{tool.data.name}</span>
+                                        <span class="cat">{tool.data.category[0]}</span>
+                                    </div>
+                                    <span class="hot-score">★ {(9.8 - index * 0.2).toFixed(1)}</span>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div class="sidebar-widget card">
+                        <h3 class="widget-title"><span>📰</span> 最新 AI 动态</h3>
+                        <div class="mini-article-list">
+                            {latestArticles.map(article => (
+                                <a href={`/articles/${article.slug}/`} class="mini-article-item">
+                                    <div class="article-info">
+                                        <span class="title">{article.data.title}</span>
+                                        <div class="meta">
+                                            <span class="tag">资讯</span>
+                                            <span class="date">{article.data.date.toLocaleDateString('zh-CN', {month: '2-digit', day: '2-digit'})}</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                        <a href="/articles/" class="widget-more">阅读更多深度文章 →</a>
+                    </div>
+
+                    <div class="sidebar-widget newsletter-card card">
+                        <div class="newsletter-icon">✉️</div>
+                        <h3>订阅 AI 周报</h3>
+                        <p>每周精选必看 AI 工具与干货文章</p>
+                        <input type="email" placeholder="您的邮箱地址" />
+                        <button class="btn btn-primary">立即免费订阅</button>
+                    </div>
+                </aside>
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<style>
+    .main-layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        min-height: 100vh;
+        gap: 0;
+    }
+
+    /* Left Sidebar Styles */
+    .sidebar-nav {
+        background: rgba(15, 23, 42, 0.9);
+        border-right: 1px solid var(--border);
+        padding: 2rem 1rem;
+    }
+
+    .sidebar-sticky {
+        position: sticky;
+        top: 100px;
+    }
+
+    .sidebar-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .sidebar-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 1px;
+        margin-bottom: 1rem;
+        padding-left: 1rem;
+    }
+
+    .sidebar-list {
+        list-style: none;
+    }
+
+    .sidebar-list li {
+        margin-bottom: 0.5rem;
+    }
+
+    .sidebar-list a {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+
+    .sidebar-list a:hover, .sidebar-list a.active {
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary);
+    }
+
+    /* Main Content Grid */
+    .content-area {
+        padding: 2rem;
+    }
+
+    .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 2.5rem;
+        max-width: 1700px;
+        margin: 0 auto;
+    }
+
+    .top-hero {
+        margin-bottom: 3rem;
+        padding: 6rem 3rem;
+        background: radial-gradient(circle at center, rgba(99, 102, 241, 0.15), transparent 70%);
+        border-radius: 40px;
+        border: 1px solid var(--border);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .top-hero h1 {
+        font-size: 4rem;
+        font-weight: 900;
+        margin-bottom: 1.5rem;
+        letter-spacing: -2px;
+    }
+
+    .top-hero p {
+        color: var(--text-muted);
+        font-size: 1.25rem;
+        margin-bottom: 3rem;
+    }
+
+    .hero-search-bar {
+        max-width: 650px;
+        margin: 0 auto;
+        display: flex;
+        background: rgba(15, 23, 42, 0.7);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        padding: 0.6rem;
+        border-radius: 24px;
+        box-shadow: 0 20px 50px -15px rgba(0,0,0,0.5);
+    }
+
+    .hero-search-bar input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        padding: 0 1.5rem;
+        color: white;
+        outline: none;
+        font-size: 1.1rem;
+    }
+
+    .hero-search-bar button {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border: none;
+        padding: 0.8rem 2.5rem;
+        border-radius: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .hero-search-bar button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    /* Tool Sections */
+    .tool-section {
+        margin-bottom: 5rem;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-left: 0.5rem;
+    }
+
+    .section-header h2 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .section-header h2::before {
+        content: "";
+        width: 8px;
+        height: 36px;
+        background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        border-radius: 10px;
+    }
+
+    .view-more-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        background: rgba(99, 102, 241, 0.05);
+    }
+
+    .view-more-link:hover {
+        background: rgba(99, 102, 241, 0.15);
+        transform: translateX(5px);
+    }
+
+    .tool-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+    }
+
+    /* Right Sidebar Widgets */
+    .right-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .sidebar-widget {
+        padding: 2rem;
+    }
+
+    .widget-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: white;
+    }
+
+    .ranking-widget {
+        background: linear-gradient(180deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+    }
+
+    .mini-tool-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .mini-tool-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-decoration: none;
+        padding: 0.75rem;
+        border-radius: 16px;
+        transition: all 0.3s;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid transparent;
+        position: relative;
+    }
+
+    .mini-tool-item:hover {
+        background: rgba(255, 255, 255, 0.07);
+        border-color: var(--border);
+        transform: translateX(5px);
+    }
+
+    .rank-badge {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 0.9rem;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-muted);
+    }
+
+    .rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; box-shadow: 0 0 15px rgba(251, 191, 36, 0.3); }
+    .rank-2 { background: linear-gradient(135deg, #94a3b8, #64748b); color: white; }
+    .rank-3 { background: linear-gradient(135deg, #b45309, #78350f); color: white; }
+
+    .mini-tool-item img {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: white;
+        padding: 6px;
+        object-fit: contain;
+    }
+
+    .mini-info .name {
+        color: white;
+        font-weight: 700;
+        font-size: 1rem;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .mini-info .cat {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
+
+    .hot-score {
+        margin-left: auto;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #fbbf24;
+        background: rgba(251, 191, 36, 0.1);
+        padding: 2px 8px;
+        border-radius: 20px;
+    }
+
+    .mini-article-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .mini-article-item {
+        text-decoration: none;
+        display: block;
+    }
+
+    .article-info .title {
+        color: var(--text);
+        font-size: 0.95rem;
+        font-weight: 600;
+        line-height: 1.5;
+        margin-bottom: 0.5rem;
+        display: block;
+        transition: color 0.2s;
+    }
+
+    .mini-article-item:hover .title {
+        color: var(--primary);
+    }
+
+    .article-info .meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .meta .tag {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary);
+        border-radius: 4px;
+        font-weight: 700;
+    }
+
+    .meta .date {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .widget-more {
+        display: block;
+        margin-top: 2rem;
+        text-align: center;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s;
+    }
+
+    .widget-more:hover {
+        color: var(--primary);
+    }
+
+    .newsletter-card {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.1));
+        text-align: center;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .newsletter-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .newsletter-card h3 { margin-bottom: 0.75rem; font-size: 1.4rem; }
+    .newsletter-card p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2rem; line-height: 1.6; }
+    .newsletter-card input {
+        width: 100%;
+        padding: 1rem;
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid var(--border);
+        color: white;
+        margin-bottom: 1rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .newsletter-card input:focus {
+        border-color: var(--primary);
+    }
+
+    .newsletter-card .btn {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+    }
+
+    @media (max-width: 1400px) {
+        .main-grid { grid-template-columns: 1fr; }
+        .right-sidebar { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+    }
+
+    @media (max-width: 1024px) {
+        .main-layout { grid-template-columns: 1fr; }
+        .sidebar-nav { display: none; }
+    }
+</style>
